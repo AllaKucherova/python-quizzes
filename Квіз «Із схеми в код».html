@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Квіз «Із схеми в код»</title>
+<style>
+:root{--bg:#eef6f3;--card:#fff;--ink:#12302b;--mute:#4f6b65;--line:#c5d8d1;--accent:#0f8f6e;--on:#fff;--ok:#0b6b45;--okbg:#d9f2e5;--bad:#a8231b;--badbg:#fbe1de;--oval:#ffd7a1;--para:#b9defa;--rect:#c9ebc9;--shape-ink:#12302b;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1917;--card:#15262a;--ink:#e6f2ef;--mute:#9bb8b1;--line:#2c4a46;--accent:#35c79e;--on:#06231b;--ok:#7be0b2;--okbg:#14382b;--bad:#ff9d94;--badbg:#42201e;--oval:#7a5a2a;--para:#27506f;--rect:#2f5b35;--shape-ink:#e6f2ef}}
+:root[data-theme="dark"]{--bg:#0d1917;--card:#15262a;--ink:#e6f2ef;--mute:#9bb8b1;--line:#2c4a46;--accent:#35c79e;--on:#06231b;--ok:#7be0b2;--okbg:#14382b;--bad:#ff9d94;--badbg:#42201e;--oval:#7a5a2a;--para:#27506f;--rect:#2f5b35;--shape-ink:#e6f2ef}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif;line-height:1.5}
+main{max-width:680px;margin:0 auto;padding:20px 16px 40px}
+h1{font-size:1.5rem;margin:0 0 4px}
+.sub{color:var(--mute);margin:0 0 14px}
+details{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 14px;margin-bottom:14px}
+summary{cursor:pointer;font-weight:700}
+.legend{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;font-size:.92rem}
+.chip{padding:3px 10px;border-radius:999px;color:var(--shape-ink)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+.bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden;margin:6px 0 14px}
+.bar i{display:block;height:100%;background:var(--accent);transition:width .3s}
+.meta{color:var(--mute);font-size:.9rem}
+h2{font-size:1.15rem;margin:0 0 10px}
+.chart{display:flex;justify-content:center;margin:6px 0 14px;overflow-x:auto}
+.chart text{fill:var(--shape-ink);font-size:13px;font-family:inherit}
+.chart line,.chart path{stroke:var(--mute);stroke-width:1.6;fill:none}
+.chart .ar{fill:var(--mute);stroke:none}
+.opts{display:grid;gap:10px}
+.opt{all:unset;box-sizing:border-box;display:block;width:100%;cursor:pointer;background:var(--bg);border:2px solid var(--line);border-radius:10px;padding:10px 12px}
+.opt:hover{border-color:var(--accent)}
+.opt:focus-visible,.btn:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.opt pre{margin:0;white-space:pre-wrap;word-break:break-word;font-family:ui-monospace,Consolas,monospace;font-size:.92rem}
+.opt.txt pre{font-family:inherit;font-size:1rem}
+.opt.ok{border-color:var(--ok);background:var(--okbg)}
+.opt.no{border-color:var(--bad);background:var(--badbg)}
+.opt[aria-disabled="true"]{cursor:default}
+.fb{margin-top:14px;padding:12px 14px;border-radius:10px;background:var(--bg);border-left:5px solid var(--accent)}
+.fb.ok{border-color:var(--ok);background:var(--okbg)}
+.fb.no{border-color:var(--bad);background:var(--badbg)}
+.btn{all:unset;box-sizing:border-box;cursor:pointer;display:inline-block;margin-top:14px;background:var(--accent);color:var(--on);font-weight:700;padding:10px 20px;border-radius:10px}
+.score{font-size:2.4rem;font-weight:800;margin:6px 0}
+pre.code{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;font-size:.9rem;overflow-x:auto;margin:0 0 12px;font-family:ui-monospace,Consolas,monospace}
+</style>
+</head>
+<body>
+<main>
+<h1>Квіз «Із схеми в код»</h1>
+<p class="sub">5 питань. Читай блок-схему зверху вниз і записуй кожну фігуру одним рядком коду.</p>
+<details><summary>Нагадування: фігури блок-схеми</summary>
+<div class="legend"><span class="chip" style="background:var(--oval)">Овал: початок або кінець</span><span class="chip" style="background:var(--para)">Паралелограм: введення або виведення</span><span class="chip" style="background:var(--rect)">Прямокутник: обчислення</span></div></details>
+<div id="app" class="card" aria-live="polite"></div>
+</main>
+<script>
+var Q=[
+{t:"Яка блок-схема відповідає цьому коду? Обери код до схеми.",txt:"Схема нижче. Який код їй відповідає?",ch:[["o","Початок"],["p","Введення: name"],["p","Виведення: «Привіт,» і name"],["o","Кінець"]],
+ opts:['name = input("Ім\'я: ")\nprint("Привіт,", name)','print("Привіт,", name)\nname = input("Ім\'я: ")','name = print("Ім\'я: ")\ninput("Привіт,", name)','input(name)\nprint("Привіт,")'],c:0,code:1,
+ why:"Спочатку введення (паралелограм), потім виведення (паралелограм). Змінна name має існувати до того, як її виводять."},
+{txt:"Схема додає два цілі числа. Який код правильний?",ch:[["o","Початок"],["p","Введення: a (ціле)"],["p","Введення: b (ціле)"],["r","s = a + b"],["p","Виведення: s"],["o","Кінець"]],
+ opts:['a = int(input())\nb = int(input())\ns = a + b\nprint(s)','a = input()\nb = input()\ns = a + b\nprint(s)','s = a + b\na = int(input())\nb = int(input())\nprint(s)','a = int(input())\nb = int(input())\nprint(a + b)\ns = a + b'],c:0,code:1,
+ why:"Два введення, обчислення, виведення, і саме в цьому порядку. Без int() значення залишаються текстом, і «2» + «3» дає «23»."},
+{txt:"Якій фігурі блок-схеми відповідає рядок print(\"Готово\")?",
+ opts:["Овал","Паралелограм","Прямокутник","Ромб"],c:1,code:0,
+ why:"Введення та виведення позначаємо паралелограмом."},
+{txt:"Якій фігурі відповідає рядок area = length * width?",
+ opts:["Овал","Паралелограм","Прямокутник","Ромб"],c:2,code:0,
+ why:"Обчислення позначаємо прямокутником."},
+{txt:"Схема подвоює число. У коді нижче є помилка. У чому вона?",ch:[["o","Початок"],["p","Введення: x (ціле)"],["r","y = x * 2"],["p","Виведення: y"],["o","Кінець"]],
+ pre:'y = x * 2\nx = int(input())\nprint(y)',
+ opts:["Забули print","Обчислення стоїть раніше за введення, тож змінної x ще немає","Неправильна формула","Потрібно було float замість int"],c:1,code:0,
+ why:"Комп'ютер читає зверху вниз. На першому рядку змінної x ще немає, тому виникає помилка NameError."}
+];
+var app=document.getElementById("app"),i=0,score=0,locked=false,order=[];
+var NS="http://www.w3.org/2000/svg";
+function shuf(n){var a=[],k,j,t;for(k=0;k<n;k++)a.push(k);for(k=n-1;k>0;k--){j=Math.floor(Math.random()*(k+1));t=a[k];a[k]=a[j];a[j]=t}return a}
+function chart(nodes){
+ var W=280,H=nodes.length*54+4,s='<svg xmlns="'+NS+'" viewBox="0 0 '+W+' '+H+'" width="'+W+'" role="img" aria-label="Блок-схема">',x0=45,w=190,h=36,k,y,n,f,cx=W/2;
+ for(k=0;k<nodes.length;k++){
+  n=nodes[k];y=k*54+2;
+  if(k>0){s+='<line x1="'+cx+'" y1="'+(y-18)+'" x2="'+cx+'" y2="'+(y-4)+'"/><path class="ar" d="M'+(cx-5)+' '+(y-6)+'L'+(cx+5)+' '+(y-6)+'L'+cx+' '+y+'Z"/>'}
+  f=n[0]=="o"?"var(--oval)":n[0]=="p"?"var(--para)":"var(--rect)";
+  if(n[0]=="o")s+='<rect x="'+x0+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="18" style="fill:'+f+'"/>';
+  else if(n[0]=="p")s+='<polygon points="'+(x0+14)+','+y+' '+(x0+w)+','+y+' '+(x0+w-14)+','+(y+h)+' '+x0+','+(y+h)+'" style="fill:'+f+'"/>';
+  else s+='<rect x="'+x0+'" y="'+y+'" width="'+w+'" height="'+h+'" style="fill:'+f+'"/>';
+  s+='<text x="'+cx+'" y="'+(y+23)+'" text-anchor="middle">'+n[1].replace(/&/g,"&amp;").replace(/</g,"&lt;")+'</text>';
+ }
+ return s+'</svg>';
+}
+function show(){
+ var q=Q[i];locked=false;order=shuf(q.opts.length);
+ app.innerHTML='<div class="meta">Питання '+(i+1)+' з '+Q.length+'</div><div class="bar"><i style="width:'+(i/Q.length*100)+'%"></i></div><h2></h2>'+(q.ch?'<div class="chart">'+chart(q.ch)+'</div>':'')+(q.pre?'<pre class="code"></pre>':'')+'<div class="opts"></div><div id="fb"></div>';
+ app.querySelector("h2").textContent=q.txt;
+ if(q.pre)app.querySelector("pre.code").textContent=q.pre;
+ var box=app.querySelector(".opts");
+ order.forEach(function(idx){
+  var b=document.createElement("button");b.type="button";b.className="opt"+(q.code?"":" txt");b.setAttribute("role","button");b.tabIndex=0;
+  var p=document.createElement("pre");p.textContent=q.opts[idx];b.appendChild(p);
+  b.onclick=function(){pick(idx,b)};
+  b.onkeydown=function(e){if(e.key=="Enter"||e.key==" "){e.preventDefault();pick(idx,b)}};
+  box.appendChild(b);
+ });
+}
+function pick(idx,btn){
+ if(locked)return;locked=true;
+ var q=Q[i],good=idx==q.c,all=app.querySelectorAll(".opt"),k;
+ for(k=0;k<all.length;k++){all[k].setAttribute("aria-disabled","true");if(order[k]==q.c)all[k].classList.add("ok")}
+ if(good)score++;else btn.classList.add("no");
+ var fb=document.getElementById("fb");
+ fb.innerHTML='<div class="fb '+(good?"ok":"no")+'"><strong></strong> <span></span></div><button class="btn" type="button"></button>';
+ fb.querySelector("strong").textContent=good?"Правильно!":"Не зовсім.";
+ fb.querySelector("span").textContent=q.why;
+ var nb=fb.querySelector(".btn");nb.textContent=i<Q.length-1?"Далі":"Показати результат";
+ nb.onclick=function(){i++;i<Q.length?show():end()};nb.focus();
+}
+function end(){
+ var m=score==Q.length?"Відмінно! Ти вмієш перетворювати схему на код.":score>=3?"Добре. Перечитай питання, де були помилки, і спробуй ще раз.":"Повернись до нагадування про фігури та пройди квіз ще раз: читай схему зверху вниз.";
+ app.innerHTML='<div class="meta">Результат</div><div class="bar"><i style="width:100%"></i></div><div class="score">'+score+' з '+Q.length+'</div><p></p><button class="btn" type="button">Пройти ще раз</button>';
+ app.querySelector("p").textContent=m;
+ app.querySelector(".btn").onclick=function(){i=0;score=0;show()};
+}
+show();
+</script>
+</body>
+</html>
